@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+   xmlns:foaf="http://xmlns.com/foaf/0.1/"
+   xmlns:lzp="http://laozi.org/relationship/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+  <rdf:Description rdf:about="http://laozi.org/resource/7">
+    <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/Person"/>
+    <foaf:name>尤汉娜•科米尔</foaf:name>
+    <lzp:haveNationality rdf:resource="http://laozi.org/resource/黎巴嫩"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://laozi.org/resource/2">
+    <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/Person"/>
+    <foaf:name>哈迪•阿莱维</foaf:name>
+    <lzp:haveNationality rdf:resource="http://laozi.org/resource/伊拉克"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://laozi.org/resource/3">
+    <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/Person"/>
+    <foaf:name>阿拉欧•迪布</foaf:name>
+    <lzp:haveNationality rdf:resource="http://laozi.org/resource/埃及"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://laozi.org/resource/9">
+    <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/Person"/>
+    <foaf:name>费拉斯•萨瓦赫</foaf:name>
+    <lzp:haveNationality rdf:resource="http://laozi.org/resource/叙利亚"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://laozi.org/resource/10">
+    <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/Person"/>
+    <foaf:name>Amal Porter</foaf:name>
+    <lzp:haveNationality rdf:resource="http://laozi.org/resource/英国"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://laozi.org/resource/1">
+    <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/Person"/>
+    <foaf:name>阿卜杜•格法尔•麦卡维</foaf:name>
+    <lzp:haveNationality rdf:resource="http://laozi.org/resource/伊拉克"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://laozi.org/resource/4">
+    <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/Person"/>
+    <foaf:name>哈迪•阿莱维</foaf:name>
+    <lzp:haveNationality rdf:resource="http://laozi.org/resource/伊拉克"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://laozi.org/resource/8">
+    <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/Person"/>
+    <foaf:name>穆赫辛•法尔贾尼</foaf:name>
+    <lzp:haveNationality rdf:resource="http://laozi.org/resource/埃及"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://laozi.org/resource/5">
+    <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/Person"/>
+    <foaf:name>费拉斯•萨瓦赫</foaf:name>
+    <lzp:haveNationality rdf:resource="http://laozi.org/resource/叙利亚"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://laozi.org/resource/6">
+    <rdf:type rdf:resource="http://xmlns.com/foaf/0.1/Person"/>
+    <foaf:name>Rania Meshleb</foaf:name>
+    <lzp:haveNationality rdf:resource="http://laozi.org/resource/黎巴嫩"/>
+  </rdf:Description>
+</rdf:RDF>
