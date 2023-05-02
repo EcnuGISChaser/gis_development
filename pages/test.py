@@ -6,12 +6,9 @@ Created on Wed Apr  5 19:32:40 2023
 """
 
 import streamlit as st
+from PIL import Image
 
-genre = st.radio(
-    "What\'s your favorite movie genre",
-    ('Comedy', 'Drama', 'Documentary'))
-
-if genre == 'Comedy':
-    st.write('You selected comedy.')
-else:
-    st.write("You didn\'t select comedy.")
+image1 = Image.open(r'..\data\p1.jpg')
+st.image([image1], 
+         width = 400,
+         caption=['my photo1'])
