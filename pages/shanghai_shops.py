@@ -12,7 +12,12 @@ import geopandas as gpd
 import streamlit as st
 from streamlit_folium import st_folium
 
-gdf = gpd.read_file(r"..\data\上海商业网点.shp",encoding='utf8')
+import os
+from pathlib import Path
+path = Path(os.path.dirname(__file__))
+filename = path / "data/上海商业网点.shp"
+st.write(filename)
+gdf = gpd.read_file(filename,encoding='utf8')
 minx = gdf.bounds["minx"].min()
 miny = gdf.bounds["miny"].min()
 maxx = gdf.bounds["maxx"].max()
