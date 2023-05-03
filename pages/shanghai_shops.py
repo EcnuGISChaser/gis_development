@@ -17,7 +17,7 @@ from pathlib import Path
 path = Path(os.path.dirname(__file__))
 filename = r"https://EcnuGISChaser.github.io/gis_development.github.io/data/上海商业网点.shp"
 #st.write(filename)
-gdf = gpd.read_file(filename,encoding='utf8')
+gdf = gpd.read_file(filename)
 minx = gdf.bounds["minx"].min()
 miny = gdf.bounds["miny"].min()
 maxx = gdf.bounds["maxx"].max()
