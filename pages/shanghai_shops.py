@@ -12,12 +12,8 @@ import geopandas as gpd
 import streamlit as st
 from streamlit_folium import st_folium
 
-import os
-from pathlib import Path
-path = Path(os.path.dirname(__file__))
-filename = r"https://EcnuGISChaser.github.io/gis_development.github.io/data/shanghai_shops.shp"
-#st.write(filename)
-gdf = gpd.read_file(filename)
+url = "https://EcnuGISChaser.github.io/gis_development.github.io/data/shanghai_shops.json"
+gdf = gpd.read_file(url, driver='GeoJSON')
 minx = gdf.bounds["minx"].min()
 miny = gdf.bounds["miny"].min()
 maxx = gdf.bounds["maxx"].max()
