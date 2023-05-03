@@ -5,12 +5,7 @@ Created on Wed Apr  5 19:32:40 2023
 @author: jpwu
 """
 
-import streamlit as st
-# from PIL import Image
-
-# image1 = Image.open(r'https://EcnuGISChaser.github.io/gis_development.github.io/data/p1.jpg')
-# st.image([image1], 
-#          width = 400,
-#          caption=['my photo1'])
-
-
+import geopandas as gpd
+url = "https://EcnuGISChaser.github.io/gis_development.github.io/data/shanghai_shops.json"
+gdf = gpd.read_file(url, driver='GeoJSON')
+gdf
