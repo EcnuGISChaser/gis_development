@@ -15,7 +15,7 @@ from streamlit_folium import st_folium
 import os
 from pathlib import Path
 path = Path(os.path.dirname(__file__))
-filename = r"https://EcnuGISChaser.github.io/gis_development.github.io/data/上海商业网点.shp"
+filename = r"https://EcnuGISChaser.github.io/gis_development.github.io/data/shanghai_shops.shp"
 #st.write(filename)
 gdf = gpd.read_file(filename)
 minx = gdf.bounds["minx"].min()
