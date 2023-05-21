@@ -1,0 +1,19 @@
+{
+"type": "FeatureCollection",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "NAME": "开山老殿", "url": "http://139.9.165.59:8080/tms/photos/开山老殿.jpg", "POINT_X": 119.433570618, "POINT_Y": 30.3420054632 }, "geometry": { "type": "Point", "coordinates": [ 119.433570618477304, 30.342005463166071 ] } },
+{ "type": "Feature", "properties": { "NAME": "七里亭", "url": "http://139.9.165.59:8080/tms/photos/七里亭.jpg", "POINT_X": 119.431885139, "POINT_Y": 30.338603129399999 }, "geometry": { "type": "Point", "coordinates": [ 119.431885138721981, 30.338603129376626 ] } },
+{ "type": "Feature", "properties": { "NAME": "五里亭", "url": "http://139.9.165.59:8080/tms/photos/五里亭.jpg", "POINT_X": 119.43448820499999, "POINT_Y": 30.3367924026 }, "geometry": { "type": "Point", "coordinates": [ 119.43448820451303, 30.336792402584074 ] } },
+{ "type": "Feature", "properties": { "NAME": "三里亭", "url": "http://139.9.165.59:8080/tms/photos/三里亭.jpg", "POINT_X": 119.436429909, "POINT_Y": 30.334296305 }, "geometry": { "type": "Point", "coordinates": [ 119.436429909243103, 30.334296304956073 ] } },
+{ "type": "Feature", "properties": { "NAME": "仰止亭", "url": "http://139.9.165.59:8080/tms/photos/仰止亭.jpg", "POINT_X": 119.439047316, "POINT_Y": 30.329573074900001 }, "geometry": { "type": "Point", "coordinates": [ 119.439047316349544, 30.329573074859507 ] } },
+{ "type": "Feature", "properties": { "NAME": "禅源寺", "url": "http://139.9.165.59:8080/tms/photos/禅源寺.jpg", "POINT_X": 119.44247980599999, "POINT_Y": 30.323704944 }, "geometry": { "type": "Point", "coordinates": [ 119.442479805937296, 30.323704943983515 ] } },
+{ "type": "Feature", "properties": { "NAME": "太子庵", "url": "http://139.9.165.59:8080/tms/photos/太子庵.jpg", "POINT_X": 119.43929346100001, "POINT_Y": 30.324249976600001 }, "geometry": { "type": "Point", "coordinates": [ 119.439293461245725, 30.324249976628121 ] } },
+{ "type": "Feature", "properties": { "NAME": "红庙", "url": "http://139.9.165.59:8080/tms/photos/红庙.jpg", "POINT_X": 119.451030812, "POINT_Y": 30.327707058400001 }, "geometry": { "type": "Point", "coordinates": [ 119.451030811612796, 30.327707058439501 ] } },
+{ "type": "Feature", "properties": { "NAME": "旅游服务中心", "url": "http://139.9.165.59:8080/tms/photos/旅游服务中心.jpg", "POINT_X": 119.44290468200001, "POINT_Y": 30.315898478000001 }, "geometry": { "type": "Point", "coordinates": [ 119.442904682426843, 30.315898477960829 ] } },
+{ "type": "Feature", "properties": { "NAME": "仙人顶", "url": "http://139.9.165.59:8080/tms/photos/仙人顶.jpg", "POINT_X": 119.42298, "POINT_Y": 30.34905 }, "geometry": { "type": "Point", "coordinates": [ 119.42380805243009, 30.349345053164754 ] } },
+{ "type": "Feature", "properties": { "NAME": "蔷薇花园", "url": "http://139.9.165.59:8080/tms/photos/蔷薇花园.jpg", "POINT_X": 119.444506586, "POINT_Y": 30.311494471500001 }, "geometry": { "type": "Point", "coordinates": [ 119.444506586136455, 30.31149447148016 ] } },
+{ "type": "Feature", "properties": { "NAME": "天目村", "url": "http://139.9.165.59:8080/tms/photos/天目村.jpg", "POINT_X": 119.450756826, "POINT_Y": 30.292566364300001 }, "geometry": { "type": "Point", "coordinates": [ 119.450756825902118, 30.292566364273743 ] } },
+{ "type": "Feature", "properties": { "NAME": "宝钟寺", "url": "http://139.9.165.59:8080/tms/photos/宝钟寺.jpg", "POINT_X": 119.454498805, "POINT_Y": 30.3255601603 }, "geometry": { "type": "Point", "coordinates": [ 119.45449880542219, 30.325560160267436 ] } }
+]
+}
