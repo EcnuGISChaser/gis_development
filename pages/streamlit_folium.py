@@ -8,7 +8,7 @@ Created on Tue Mar 28 12:06:31 2023
 
 import folium
 import streamlit as st
-from streamlit_folium import st_folium
+from streamlit_folium import st_folium,folium_static
 
 st.title("streamlit_folium示例")
 tiles = 'http://webst01.is.autonavi.com/appmaptile?style=7&x={x}&y={y}&z={z}'
@@ -34,5 +34,5 @@ for city in cities:
     folium.Marker(location=[y,x],
                   popup=popup).add_to(m)
 
-output = st_folium(m, width=700, height=500)
+output = folium_static(m, width=700, height=500)
 
