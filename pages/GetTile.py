@@ -8,11 +8,14 @@ Created on Mon Apr 10 11:25:48 2023
 import streamlit as st
 from math import log,tan,pi
 import requests
+
 st.title("返回地图切片")
+
 form = st.form("my_form")
 z = form.number_input('输入比例尺级别0~18',min_value=0,max_value=18,value=0,format="%d")
 lng = form.number_input('输入经度-180~180',min_value=-180.,max_value=180.,value=0.,format="%f")
 lat = form.number_input('输入纬度-90~90',min_value=-90.,max_value=90.,value=0.,format="%f")
+    
 submitted = form.form_submit_button("Submit")
 if submitted:
      r = 20037508.34
@@ -26,7 +29,7 @@ if submitted:
      image = response.content   
      st.image(image, width = 400,caption=f'z={z},lng={lng},lat={lat}')
 
-st.download_button('下载切片图像', 
-                   image,
-                   file_name="tile.png",
-                   mime="image/png")
+     st.download_button('下载切片图像', 
+                         image,
+                         file_name="tile.png",
+                         mime="image/png")
