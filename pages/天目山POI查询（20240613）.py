@@ -50,20 +50,20 @@ point = gdf[gdf["NAME"]==session_POI_name].iloc[0]["geometry"]
 m = folium.Map(tiles=None)
 m.fit_bounds([(miny,minx),(maxy,maxx)])
 
-folium.TileLayer(tiles="Esri.WorldImagery",
-                name="Esri全球影像",
-                attr="Esri全球影像",
-                control_scale=True).add_to(m)
+# folium.TileLayer(tiles="Esri.WorldImagery",
+#                 name="Esri全球影像",
+#                 attr="Esri全球影像",
+#                 control_scale=True).add_to(m)
 
 folium.TileLayer(tiles="CartoDB.Positron",
                 name="Carto地图",
                 attr="Carto地图",
                 control_scale=True).add_to(m)
 
-folium.TileLayer(tiles="Gaode.Normal",
-                name="高德地图",
-                attr="高德地图",
-                control_scale=True).add_to(m)
+# folium.TileLayer(tiles="Gaode.Normal",
+#                 name="高德地图",
+#                 attr="高德地图",
+#                 control_scale=True).add_to(m)
 
 icon = folium.Icon(color="red",prefix="fa",icon="store",icon_color="white")
 
