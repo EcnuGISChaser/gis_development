@@ -48,7 +48,8 @@ session_POI_name = st.session_state['POI_name']
 st.text(session_POI_name)  
 point = gdf[gdf["NAME"]==session_POI_name].iloc[0]["geometry"]
 
-m = folium.Map()
+m = folium.Map(tiles="Gaode.Normal",
+               attr='高德地图')
 m.fit_bounds([(miny,minx),(maxy,maxx)])
 
 folium.TileLayer(control_scale=True,).add_to(m)
