@@ -47,8 +47,9 @@ session_POI_name = st.session_state['POI_name']
 st.text(session_POI_name)  
 point = gdf[gdf["NAME"]==session_POI_name].iloc[0]["geometry"]
 
-tiles = "https://{s}.basemaps.cartocdn.com/{variant}/{z}/{x}/{y}{r}.png"
-m = folium.Map(tiles=tiles,attr="Carto地图")
+tiles = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png'
+attr = 'ArcGIS online全球影像'
+m = folium.Map(tiles=tiles,attr=attr)
 m.fit_bounds([(miny,minx),(maxy,maxx)])
 
 # folium.TileLayer(tiles="Esri.WorldImagery",
