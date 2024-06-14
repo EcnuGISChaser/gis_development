@@ -55,7 +55,7 @@ m.fit_bounds([(miny,minx),(maxy,maxx)])
 #                 attr="Esri全球影像",
 #                 control_scale=True).add_to(m)
 
-tiles = https://{s}.basemaps.cartocdn.com/{variant}/{z}/{x}/{y}{r}.png
+tiles = "https://{s}.basemaps.cartocdn.com/{variant}/{z}/{x}/{y}{r}.png"
 folium.TileLayer(tiles=tiles,
                 name="Carto地图",
                 attr="Carto地图",
