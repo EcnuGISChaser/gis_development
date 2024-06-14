@@ -55,10 +55,12 @@ m.fit_bounds([(miny,minx),(maxy,maxx)])
 #                 attr="Esri全球影像",
 #                 control_scale=True).add_to(m)
 
-folium.TileLayer(tiles="CartoDB.Positron",
+tiles = https://{s}.basemaps.cartocdn.com/{variant}/{z}/{x}/{y}{r}.png
+folium.TileLayer(tiles=tiles,
                 name="Carto地图",
                 attr="Carto地图",
                 control_scale=True).add_to(m)
+
 
 # folium.TileLayer(tiles="Gaode.Normal",
 #                 name="高德地图",
