@@ -50,7 +50,7 @@ point = gdf[gdf["NAME"]==session_POI_name].iloc[0]["geometry"]
 m = folium.Map(tiles=None)
 m.fit_bounds([(miny,minx),(maxy,maxx)])
 
-folium.TileLayer(tiles="CartoDB.Positron",
+folium.TileLayer(tiles="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
                 name="Carto地图",
                 attr="Carto地图",
                 control_scale=True).add_to(m)
