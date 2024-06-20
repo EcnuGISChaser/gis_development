@@ -55,7 +55,7 @@ folium.TileLayer(tiles="CartoDB.Positron",
                 attr="Carto地图",
                 control_scale=True).add_to(m)
 
-folium.TileLayer(tiles="Gaode.Normal",
+folium.TileLayer(tiles="http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}",
                 name="高德地图",
                 attr="高德地图",
                 control_scale=True).add_to(m)
