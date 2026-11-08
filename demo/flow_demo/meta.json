@@ -1,0 +1,13 @@
+{
+ "width": 786,
+ "height": 767,
+ "min": 438,
+ "max": 4361,
+ "nodata": -32768,
+ "pixelScale": 30.0,
+ "tiePoint": [
+  471090.08257249475,
+  231352.35339681862
+ ],
+ "crs": "EPSG:32145 (NAD83 / Vermont State Plane)"
+}
