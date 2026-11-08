@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>地理教学课件 · 三维地形模型</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #dfeaf5;
+  }
+  #scene { position: absolute; inset: 0; }
+
+  .panel {
+    position: absolute;
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(60,90,130,.25);
+    border-radius: 10px;
+    box-shadow: 0 4px 18px rgba(30,60,100,.15);
+    padding: 14px 16px;
+    backdrop-filter: blur(4px);
+    z-index: 10;
+  }
+
+  #title-panel { top: 16px; left: 16px; width: 252px; }
+  #title-panel h1 { font-size: 18px; color: #1a3a5c; letter-spacing: 1px; }
+
+  /* 信息框收拢 / 展开 */
+  .panel-head {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; cursor: pointer; user-select: none;
+  }
+  .panel-head .ttl { font-size: 13px; font-weight: bold; color: #1a3a5c; letter-spacing: .5px; }
+  .panel-head .fold {
+    flex: 0 0 18px; width: 18px; height: 18px; padding: 0;
+    border: 1px solid #c4d6e8; background: #f2f7fc; color: #2a5a8c;
+    border-radius: 4px; font-size: 11px; line-height: 15px; cursor: pointer;
+    transition: transform .2s;
+  }
+  .panel-head:hover .fold { background: #e3eefa; }
+  .panel.collapsed .fold { transform: rotate(-90deg); }
+  .panel.collapsed .panel-body { display: none; }
+  .panel.collapsed { width: auto !important; min-width: 0; padding: 8px 14px 8px 12px; }
+  .panel.collapsed .panel-head { gap: 10px; }
+  .panel.collapsed h1 { font-size: 15px; }
+  .panel.collapsed #north-arrow { display: none; }
+  #title-panel .sub { font-size: 11px; color: #5a7590; margin-top: 5px; line-height: 1.5; }
+  #title-panel .sub b { color: #2a5a8c; }
+
+  #legend { margin-top: 8px; }
+  #legend-bar { width: 100%; height: 12px; border-radius: 6px; border: 1px solid #ccc; }
+  #legend-labels { display: flex; justify-content: space-between; font-size: 10px; color: #5a7590; margin-top: 3px; }
+
+  .ctrl-row { margin-top: 7px; font-size: 12px; color: #2a4a6a; }
+  .ctrl-row label { display: inline-block; width: 72px; color: #3a5a7a; }
+  .ctrl-row select, .ctrl-row input[type=range] { vertical-align: middle; }
+  .ctrl-row select { padding: 2px 4px; border: 1px solid #b8c8d8; border-radius: 4px; font-size: 12px; background: #fff; }
+  .ctrl-row input[type=range] { width: 130px; accent-color: #2a6ab0; }
+  .ctrl-row .val { display: inline-block; min-width: 42px; color: #2a6ab0; font-weight: bold; font-size: 11px; }
+  .ctrl-row input[type=checkbox] { accent-color: #2a6ab0; vertical-align: middle; }
+
+  #probe { top: 16px; right: 16px; min-width: 200px; text-align: right; }
+  #probe .t { font-size: 11px; color: #5a7590; }
+  #probe .h { font-size: 24px; font-weight: bold; color: #1a5a9c; margin-top: 2px; }
+  #probe .xy { font-size: 10px; color: #8aa0b5; margin-top: 2px; }
+
+  #help { bottom: 16px; left: 16px; font-size: 12px; color: #3a5a7a; line-height: 1.8; }
+  #help .k { display: inline-block; background: #eef4fa; border: 1px solid #c4d6e8; border-radius: 4px; padding: 0 6px; font-size: 11px; margin-right: 4px; }
+
+  #plan { bottom: 16px; right: 16px; padding: 8px; }
+  #plan img { display: block; width: 165px; border-radius: 4px; border: 1px solid #ccc; }
+  #plan .cap { font-size: 10px; color: #5a7590; text-align: center; margin-top: 4px; }
+  #north-arrow { position: absolute; top: -12px; right: -12px; width: 30px; height: 30px; background: #fff; border: 1px solid #c4d6e8; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #c0392b; box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+
+  #loading {
+    position: absolute; inset: 0; z-index: 99;
+    background: linear-gradient(180deg, #eaf2fa, #d5e5f2);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity .6s; font-size: 15px; color: #2a5a8c; letter-spacing: 2px;
+  }
+  #loading .ring { width: 42px; height: 42px; border: 4px solid #bcd4ea; border-top-color: #2a6ab0; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loading.done { opacity: 0; pointer-events: none; }
+
+  #err { display: none; position: absolute; inset: 0; z-index: 100; background: #fff; color: #b03030; padding: 60px; font-size: 14px; line-height: 2; }
+</style>
+</head>
+<body>
+<div id="scene"></div>
+
+<div class="panel" id="title-panel">
+  <div class="panel-head"><h1>三维地形模型</h1><button class="fold" title="收拢 / 展开">▾</button></div>
+  <div class="panel-body">
+  <div class="sub">
+    数据源：<b>elevation.tif</b>（DEM）<br>
+    高程范围：<b id="range-text"></b><br>
+    像元分辨率：30 m ｜ 色带随高程渐变
+  </div>
+  <div id="legend">
+    <canvas id="legend-bar" width="220" height="12"></canvas>
+    <div id="legend-labels"><span id="leg-min"></span><span id="leg-max"></span></div>
+  </div>
+  <div class="ctrl-row"><label>色带方案</label>
+    <select id="ramp">
+      <option value="terrain" selected>地形色带</option>
+      <option value="gray">灰度晕渲</option>
+      <option value="rainbow">光谱色带</option>
+    </select>
+  </div>
+  <div class="ctrl-row"><label>等高线</label>
+    <select id="contour">
+      <option value="0">关闭</option>
+      <option value="50">50 m</option>
+      <option value="100" selected>100 m</option>
+      <option value="250">250 m</option>
+      <option value="500">500 m</option>
+    </select>
+  </div>
+  <div class="ctrl-row"><label>垂直夸张</label>
+    <input type="range" id="exagg" min="0.2" max="4" step="0.1" value="1.2">
+    <span class="val" id="exagg-val">1.2×</span>
+  </div>
+  <div class="ctrl-row"><label>太阳方位角</label>
+    <input type="range" id="sunaz" min="0" max="360" step="5" value="315">
+    <span class="val" id="sunaz-val">315°</span>
+  </div>
+  <div class="ctrl-row"><label>太阳高度角</label>
+    <input type="range" id="sunalt" min="10" max="85" step="1" value="45">
+    <span class="val" id="sunalt-val">45°</span>
+  </div>
+  <div class="ctrl-row">
+    <label><input type="checkbox" id="autorot"> 自动旋转</label>
+    <label style="margin-left:10px"><input type="checkbox" id="hillshade" checked> 光照晕渲</label>
+    <button id="reset" style="margin-left:10px;padding:3px 10px;border:1px solid #b8c8d8;border-radius:4px;background:#fff;color:#2a5a8c;cursor:pointer;font-size:12px">    复位视角</button>
+  </div>
+  </div>
+</div>
+
+<div class="panel" id="probe">
+  <div class="panel-head"><span class="ttl">水流分析</span><button class="fold" title="收拢 / 展开">▾</button></div>
+  <div class="panel-body">
+  <div class="t">在地形上点击，查询该点高程</div>
+  <div class="h" id="probe-h">— m</div>
+  <div class="xy" id="probe-xy"></div>
+  <div style="margin-top:8px;font-size:12px;color:#2a4a6a;text-align:left">
+    <label style="cursor:pointer"><input type="checkbox" id="marktool"> 标点工具（新点替换旧点）</label>
+  </div>
+  <div style="margin-top:4px;font-size:12px;color:#2a4a6a;text-align:left">
+    <label style="cursor:pointer"><input type="checkbox" id="showflow" checked> 水流路径（D8 法）</label>
+  </div>
+  <div style="margin-top:4px;font-size:12px;color:#2a4a6a;text-align:left">
+    <label style="cursor:pointer" title="用 Priority-Flood 算法填平所有洼地（附加 ε 梯度），使水流能连续下泄至区域边界后再计算路径"><input type="checkbox" id="filldeps"> 对DEM数据进行填洼处理</label>
+  </div>
+  <div id="flow-info" style="margin-top:4px;font-size:11px;color:#1565c0;text-align:left;line-height:1.5"></div>
+  </div>
+</div>
+
+<div class="panel" id="help">
+  <div class="panel-head"><span class="ttl">操作提示</span><button class="fold" title="收拢 / 展开">▾</button></div>
+  <div class="panel-body">
+  <div><span class="k">左键拖动</span>旋转视角</div>
+  <div><span class="k">滚轮</span>缩放远近</div>
+  <div><span class="k">右键拖动</span>平移画面</div>
+  </div>
+</div>
+
+<div class="panel" id="plan">
+  <div class="panel-head"><span class="ttl">平面图对照</span><button class="fold" title="收拢 / 展开">▾</button></div>
+  <div class="panel-body">
+  <div id="north-arrow">▲北</div>
+  <img src="plan.png" alt="平面图">
+  <div class="cap">同一区域平面图（俯视）</div>
+  </div>
+</div>
+
+<div id="loading"><div class="ring"></div>正在加载 DEM 数据…</div>
+<div id="err"></div>
+
+<script src="three.min.js"></script>
+<script src="OrbitControls.js"></script>
+<script src="elevation.bin.js"></script>
+<script>
+(function () {
+  'use strict';
+  // ---------- 元数据 ----------
+  const W = 786, H = 767, CELL = 30;
+  const VMIN = 438, VMAX = 4361;
+
+  document.getElementById('range-text').textContent = VMIN + ' – ' + VMAX + ' m';
+  document.getElementById('leg-min').textContent = VMIN + ' m';
+  document.getElementById('leg-max').textContent = VMAX + ' m';
+
+  // ---------- 解码 base64 高程数据 ----------
+  let elev;
+  try {
+    const bin = atob(window.ELEV_DATA);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const i16 = new Int16Array(bytes.buffer);
+    elev = new Float32Array(W * H);
+    for (let i = 0; i < i16.length; i++) elev[i] = i16[i] <= -32000 ? VMIN : i16[i];
+  } catch (e) {
+    showErr('高程数据解码失败：' + e.message);
+    return;
+  }
+  // 翻转行序，使第 0 行（北）位于纹理/网格远处
+  const dem = new Float32Array(W * H);
+  for (let y = 0; y < H; y++) dem.set(elev.subarray(y * W, (y + 1) * W), (H - 1 - y) * W);
+
+  const hAt = (c, r) => {
+    const cc = Math.min(Math.max(c, 0), W - 1), rr = Math.min(Math.max(r, 0), H - 1);
+    return dem[rr * W + cc];
+  };
+
+  // ---------- 渲染器 ----------
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+  } catch (e) {
+    showErr('无法创建 WebGL 渲染器，请检查浏览器是否支持硬件加速。');
+    return;
+  }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(innerWidth, innerHeight);
+  document.getElementById('scene').appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0xdfeaf5);
+  scene.fog = new THREE.Fog(0xdfeaf5, 42000, 90000);
+
+  const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 10, 200000);
+  const HOME = { pos: new THREE.Vector3(15000, 11000, 17000), tgt: new THREE.Vector3(0, 900, 0) };
+  camera.position.copy(HOME.pos);
+
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.target.copy(HOME.tgt);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.maxPolarAngle = Math.PI * 0.49;
+  controls.minDistance = 800;
+  controls.maxDistance = 80000;
+  controls.update();
+
+  // ---------- 色带（GLSL 与图例共用同一组色标） ----------
+  const RAMPS = {
+    terrain: [[0,68,89,161],[.1,67,140,190],[.22,63,178,157],[.38,97,190,93],[.55,201,202,78],[.72,175,121,62],[.88,146,82,45],[1,239,238,230]],
+    gray:    [[0,40,44,50],[.5,140,144,150],[1,246,248,252]],
+    rainbow: [[0,50,80,180],[.25,60,180,220],[.5,90,200,110],[.75,240,210,60],[1,215,70,50]]
+  };
+
+  function rampGLSL(name) {
+    const s = RAMPS[name].map(p => p.slice(1).map(v => (v / 255).toFixed(4)));
+    const t = RAMPS[name].map(p => p[0]);
+    let code = '';
+    for (let i = 0; i < s.length - 1; i++) {
+      const cond = i < s.length - 2 ? `if (t < ${t[i + 1].toFixed(4)}) ` : '';
+      code += `${cond}return mix(vec3(${s[i]}), vec3(${s[i + 1]}), smoothstep(${t[i].toFixed(4)}, ${t[i + 1].toFixed(4)}, t));\n    `;
+    }
+    return `vec3 ramp(float t){
+      ${code}
+    }`;
+  }
+
+  // ---------- 图例 ----------
+  const legendCtx = document.getElementById('legend-bar').getContext('2d');
+  function drawLegend(name) {
+    const stops = RAMPS[name];
+    const g = legendCtx.createLinearGradient(0, 0, 220, 0);
+    stops.forEach(p => g.addColorStop(p[0], `rgb(${p[1]},${p[2]},${p[3]})`));
+    legendCtx.clearRect(0, 0, 220, 12);
+    legendCtx.fillStyle = g;
+    legendCtx.fillRect(0, 0, 220, 12);
+  }
+  drawLegend('terrain');
+
+  // ---------- 地形网格 ----------
+  let STEP = 2;                       // 采样步长（标准模式隔行采样）
+  let mesh = null, geo = null, mat = null;
+  const uniforms = {
+    uMin:   { value: VMIN },
+    uMax:   { value: VMAX },
+    uEx:    { value: 1.0 },
+    uRamp:  { value: 0 },
+    uInterval: { value: 100.0 },
+    uSunDir:   { value: new THREE.Vector3(0, 1, 0.3).normalize() },
+    uShade:    { value: 1.0 }
+  };
+
+  function buildMaterial(rampName) {
+    const fs = `
+      uniform float uMin, uMax, uInterval, uShade;
+      uniform vec3 uSunDir;
+      varying float vH;
+      varying vec3 vNormal, vPos;
+      ${rampGLSL(rampName)}
+      void main() {
+        float t = clamp((vH - uMin) / (uMax - uMin), 0.0, 1.0);
+        vec3 col = ramp(t);
+        if (uShade > 0.5) {
+          vec3 N = normalize(vNormal);
+          vec3 L = normalize((viewMatrix * vec4(uSunDir, 0.0)).xyz);
+          float diff = max(dot(N, L), 0.0);
+          col *= 0.42 + 0.68 * diff;
+        }
+        if (uInterval > 0.0) {
+          float f = vH / uInterval;
+          float w = max(fwidth(f), 1e-5);
+          float line = 1.0 - clamp(abs(fract(f - 0.5) - 0.5) / w, 0.0, 1.0);
+          col = mix(col, vec3(0.22, 0.25, 0.28), line * 0.55);
+        }
+        gl_FragColor = vec4(col, 1.0);
+      }`;
+    const vs = `
+      uniform float uEx;
+      varying float vH;
+      varying vec3 vNormal, vPos;
+      void main() {
+        vH = ${VMIN}.0 + position.y / uEx;
+        vNormal = normalMatrix * normal;
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        vPos = mv.xyz;
+        gl_Position = projectionMatrix * mv;
+      }`;
+    return new THREE.ShaderMaterial({
+      uniforms: uniforms,
+      vertexShader: vs,
+      fragmentShader: fs,
+      side: THREE.DoubleSide
+    });
+  }
+
+  function buildMesh() {
+    if (mesh) { scene.remove(mesh); geo.dispose(); mesh = null; }
+    const width = (W - 1) * CELL, depth = (H - 1) * CELL;
+    const segX = Math.floor((W - 1) / STEP), segY = Math.floor((H - 1) / STEP);
+    geo = new THREE.PlaneGeometry(width, depth, segX, segY);
+    geo.rotateX(-Math.PI / 2);           // XZ 平面，+Y 向上；网格第 0 行朝 -Z（北）
+    const pos = geo.attributes.position;
+    const ex = parseFloat(document.getElementById('exagg').value);
+    for (let iy = 0; iy <= segY; iy++) {
+      for (let ix = 0; ix <= segX; ix++) {
+        const k = iy * (segX + 1) + ix;
+        const h = hAt(ix * STEP, iy * STEP);
+        pos.setY(k, (h - VMIN) * ex);
+      }
+    }
+    geo.computeVertexNormals();
+    mat = buildMaterial(document.getElementById('ramp').value);
+    mesh = new THREE.Mesh(geo, mat);
+    scene.add(mesh);
+    uniforms.uEx.value = ex;
+  }
+  buildMesh();
+
+  // ---------- 太阳光方向 ----------
+  function updateSun() {
+    const az = parseFloat(document.getElementById('sunaz').value) * Math.PI / 180;
+    const alt = parseFloat(document.getElementById('sunalt').value) * Math.PI / 180;
+    uniforms.uSunDir.value.set(Math.sin(az) * Math.cos(alt), Math.sin(alt), -Math.cos(az) * Math.cos(alt)).normalize();
+  }
+  updateSun();
+
+  // ---------- 信息框收拢 / 展开 ----------
+  document.querySelectorAll('.panel-head').forEach(head => {
+    head.addEventListener('click', () => {
+      head.closest('.panel').classList.toggle('collapsed');
+    });
+  });
+
+  // ---------- 交互控件 ----------
+  document.getElementById('ramp').addEventListener('change', function () {
+    drawLegend(this.value);
+    uniforms.uRamp.value = Object.keys(RAMPS).indexOf(this.value);
+    mat.fragmentShader = buildMaterial(this.value).fragmentShader;
+    mat.needsUpdate = true;
+  });
+  document.getElementById('contour').addEventListener('change', function () {
+    uniforms.uInterval.value = parseFloat(this.value);
+  });
+  let normTimer = null;
+  document.getElementById('exagg').addEventListener('input', function () {
+    const ex = parseFloat(this.value);
+    document.getElementById('exagg-val').textContent = ex.toFixed(1) + '×';
+    uniforms.uEx.value = ex;
+    // 即时位移 + 节流重算法线
+    const segX = Math.floor((W - 1) / STEP), segY = Math.floor((H - 1) / STEP);
+    const pos = geo.attributes.position;
+    for (let iy = 0; iy <= segY; iy++) {
+      for (let ix = 0; ix <= segX; ix++) {
+        const k = iy * (segX + 1) + ix;
+        pos.setY(k, (hAt(ix * STEP, iy * STEP) - VMIN) * ex);
+      }
+    }
+    pos.needsUpdate = true;
+    geo.computeBoundingSphere();
+    if (marker) marker.position.y = (marker.userData.h - VMIN) * ex;   // 标记点贴合新地形高度
+    rebuildFlow(ex);                                                   // 水流路径随地形重建
+    clearTimeout(normTimer);
+    normTimer = setTimeout(() => geo.computeVertexNormals(), 160);
+  });
+  document.getElementById('sunaz').addEventListener('input', function () {
+    document.getElementById('sunaz-val').textContent = this.value + '°'; updateSun();
+  });
+  document.getElementById('sunalt').addEventListener('input', function () {
+    document.getElementById('sunalt-val').textContent = this.value + '°'; updateSun();
+  });
+  document.getElementById('hillshade').addEventListener('change', function () {
+    uniforms.uShade.value = this.checked ? 1 : 0;
+  });
+  document.getElementById('autorot').addEventListener('change', function () {
+    controls.autoRotate = this.checked;
+    controls.autoRotateSpeed = 0.6;
+  });
+  document.getElementById('reset').addEventListener('click', () => {
+    camera.position.copy(HOME.pos);
+    controls.target.copy(HOME.tgt);
+    controls.update();
+  });
+
+  // ---------- 标点工具（只保留最新一个点） ----------
+  const MARK_COLOR = 0xe74c3c;
+  let marker = null;                       // 当前标记（同屏仅一个）
+  function placeMarker(point) {
+    const ex = uniforms.uEx.value;
+    if (marker) { scene.remove(marker); marker = null; }   // 放新点前删旧点
+    const hMeters = VMIN + point.y / ex;
+    marker = new THREE.Group();
+    marker.userData.h = hMeters;           // 记录真实高程，供夸张系数变化后重定位
+    const pin = new THREE.Mesh(
+      new THREE.SphereGeometry(130, 18, 14),
+      new THREE.MeshBasicMaterial({ color: MARK_COLOR })
+    );
+    pin.position.y = 180;
+    const stem = new THREE.Mesh(
+      new THREE.CylinderGeometry(14, 14, 180, 8),
+      new THREE.MeshBasicMaterial({ color: MARK_COLOR })
+    );
+    stem.position.y = 90;
+    marker.add(pin, stem);
+    marker.position.copy(point);
+    scene.add(marker);
+    updateFlow(point);          // 标点后计算并绘制水流路径
+  }
+
+  // ---------- 水流路径（D8 最陡下降法） ----------
+  let flowMesh = null, flowCurve = null, flowPath = null, flowEnd = '';
+  function cellWorld(col, row, ex, lift) {
+    return new THREE.Vector3(
+      (col - (W - 1) / 2) * CELL,
+      (hAt(col, row) - VMIN) * ex + lift,
+      (row - (H - 1) / 2) * CELL
+    );
+  }
+  // ---------- 填洼处理（Priority-Flood + ε 递增，填平所有洼地） ----------
+  let filledDEM = null;
+  const FILL_EPS = 0.01;                  // 填充面上附加的微小梯度（米）
+  function fillDepressions() {
+    const done = new Uint8Array(W * H);
+    const out = new Float32Array(W * H);
+    const heap = [];                      // 二叉最小堆 [高程, 像元索引]
+    const up = k => {
+      while (k > 0) {
+        const p = (k - 1) >> 1;
+        if (heap[p][0] <= heap[k][0]) break;
+        const t = heap[p]; heap[p] = heap[k]; heap[k] = t; k = p;
+      }
+    };
+    const push = (e, i) => { heap.push([e, i]); up(heap.length - 1); };
+    const pop = () => {
+      const top = heap[0], last = heap.pop();
+      if (heap.length) {
+        heap[0] = last;
+        let k = 0;
+        for (;;) {
+          const l = 2 * k + 1, rr = l + 1;
+          let m = k;
+          if (l < heap.length && heap[l][0] < heap[m][0]) m = l;
+          if (rr < heap.length && heap[rr][0] < heap[m][0]) m = rr;
+          if (m === k) break;
+          const t = heap[m]; heap[m] = heap[k]; heap[k] = t; k = m;
+        }
+      }
+      return top;
+    };
+    const NB = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]];
+    // 从边界种子向内泛洪：低于已知水面的像元被填至水面 + ε，保证出流梯度
+    for (let r = 0; r < H; r++)
+      for (let c = 0; c < W; c++)
+        if (c === 0 || r === 0 || c === W - 1 || r === H - 1) {
+          const i = r * W + c;
+          out[i] = hAt(c, r); done[i] = 1; push(out[i], i);
+        }
+    while (heap.length) {
+      const cell = pop(), e = cell[0], i = cell[1];
+      const c = i % W, r = (i / W) | 0;
+      for (let n = 0; n < 8; n++) {
+        const nc = c + NB[n][0], nr = r + NB[n][1];
+        if (nc < 0 || nr < 0 || nc >= W || nr >= H) continue;
+        const ni = nr * W + nc;
+        if (done[ni]) continue;
+        done[ni] = 1;
+        const hn = hAt(nc, nr);
+        out[ni] = hn > e ? hn : e + FILL_EPS;
+        push(out[ni], ni);
+      }
+    }
+    return out;
+  }
+  // 水流计算所用高程：勾选填洼时取填洼后表面
+  function flowH(c, r) {
+    return (filledDEM && document.getElementById('filldeps').checked) ? filledDEM[r * W + c] : hAt(c, r);
+  }
+  function computeFlowPath(c0, r0) {
+    const NB = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]];
+    let c = c0, r = r0;
+    const path = [[c, r]];
+    for (let s = 0; s < 50000; s++) {
+      const h = flowH(c, r);
+      let best = -1, bestSlope = 0;
+      for (let i = 0; i < 8; i++) {
+        const nc = c + NB[i][0], nr = r + NB[i][1];
+        if (nc < 0 || nr < 0 || nc >= W || nr >= H) continue;
+        const slope = (h - flowH(nc, nr)) / (Math.hypot(NB[i][0], NB[i][1]) * CELL);
+        if (slope > bestSlope) { bestSlope = slope; best = i; }   // 只向更低处流
+      }
+      if (best < 0) {
+        flowEnd = (c === 0 || r === 0 || c === W - 1 || r === H - 1) ? '到达边界' : '汇入洼地';
+        break;
+      }
+      c += NB[best][0]; r += NB[best][1];
+      path.push([c, r]);
+    }
+    return path;
+  }
+  function rebuildFlow(ex) {
+    if (flowMesh) { scene.remove(flowMesh); flowMesh.geometry.dispose(); flowMesh = null; }
+    flowCurve = null;
+    if (!flowPath || flowPath.length < 2 || !document.getElementById('showflow').checked) return;
+    const pts = flowPath.map(p => cellWorld(p[0], p[1], ex, 18));   // 抬高避免陷入地表
+    flowCurve = new THREE.CatmullRomCurve3(pts);
+    const segs = Math.min(Math.max(flowPath.length * 2, 50), 3000);
+    flowMesh = new THREE.Mesh(
+      new THREE.TubeGeometry(flowCurve, segs, 38, 8, false),
+      new THREE.MeshBasicMaterial({ color: 0x00e5ff })
+    );
+    scene.add(flowMesh);
+  }
+  function updateFlow(point) {
+    const col = Math.min(Math.max(Math.round(point.x / CELL + (W - 1) / 2), 0), W - 1);
+    const row = Math.min(Math.max(Math.round(point.z / CELL + (H - 1) / 2), 0), H - 1);
+    flowPath = computeFlowPath(col, row);
+    const info = document.getElementById('flow-info');
+    if (flowPath.length < 2) {
+      flowPath = null;
+      info.textContent = '此处无下坡方向（局部洼地/平坦区），未生成水流路径';
+    } else {
+      const last = flowPath[flowPath.length - 1];
+      const drop = Math.round(flowH(col, row) - flowH(last[0], last[1]));
+      const filled = filledDEM && document.getElementById('filldeps').checked;
+      info.textContent = '水流路径：' + flowPath.length + ' 像元 · 累计落差 ' + drop + ' m · ' +
+        flowEnd + (filled ? '（基于填洼后DEM）' : '（原始DEM）');
+    }
+    rebuildFlow(uniforms.uEx.value);
+  }
+  document.getElementById('showflow').addEventListener('change', function () {
+    rebuildFlow(uniforms.uEx.value);
+  });
+  document.getElementById('filldeps').addEventListener('change', function () {
+    const info = document.getElementById('flow-info');
+    if (this.checked && !filledDEM) {
+      info.textContent = '正在对 DEM 进行填洼处理…（约 60 万像元，请稍候）';
+      setTimeout(() => {            // 先让提示渲染出来再计算
+        filledDEM = fillDepressions();
+        if (marker) updateFlow(marker.position);
+        else info.textContent = '填洼完成，标点即可查看水流路径';
+      }, 30);
+    } else {
+      if (marker) updateFlow(marker.position);   // 已有缓存：直接用原/填洼DEM重算
+      else info.textContent = '';
+    }
+  });
+
+  // 水滴动画：沿路径循环流动，直观演示流向（大水珠 + 光晕 + 脉动）
+  const droplet = new THREE.Mesh(
+    new THREE.SphereGeometry(130, 16, 12),
+    new THREE.MeshBasicMaterial({ color: 0xffffff })
+  );
+  const halo = new THREE.Mesh(
+    new THREE.SphereGeometry(130, 16, 12),
+    new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.35 })
+  );
+  halo.scale.setScalar(1.9);
+  droplet.add(halo);                        // 光晕随水滴一起移动
+  droplet.visible = false;
+  scene.add(droplet);
+
+  // 标点工具开关：切换提示文案与鼠标指针
+  document.getElementById('marktool').addEventListener('change', function () {
+    document.querySelector('#probe .t').textContent = this.checked
+      ? '标点工具开启：点击地形放置标记点'
+      : '在地形上点击，查询该点高程';
+    renderer.domElement.style.cursor = this.checked ? 'crosshair' : '';
+  });
+
+  // ---------- 高程查询 / 标点（点击，与拖动区分） ----------
+  const raycaster = new THREE.Raycaster();
+  let downXY = null;
+  renderer.domElement.addEventListener('pointerdown', e => {
+    downXY = e.button === 0 ? [e.clientX, e.clientY] : null;   // 仅左键
+  });
+  renderer.domElement.addEventListener('pointerup', e => {
+    if (!downXY || Math.hypot(e.clientX - downXY[0], e.clientY - downXY[1]) > 5) return;
+    const ndc = new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+    raycaster.setFromCamera(ndc, camera);
+    const hit = raycaster.intersectObject(mesh)[0];
+    if (hit) {
+      const ex = uniforms.uEx.value;
+      const h = VMIN + hit.point.y / ex;
+      document.getElementById('probe-h').textContent = Math.round(h) + ' m';
+      const wx = hit.point.x, wz = hit.point.z;
+      document.getElementById('probe-xy').textContent =
+        '平面坐标 ≈ (' + Math.round((wx + (W - 1) * CELL / 2) / CELL) + ', ' +
+        Math.round((wz + (H - 1) * CELL / 2) / CELL) + ') 像元';
+      if (document.getElementById('marktool').checked) placeMarker(hit.point);
+    }
+  });
+
+  // ---------- 演示钩子（录屏脚本 / 课堂控制用） ----------
+  window.__demo = {
+    zoom: f => { camera.position.multiplyScalar(f); controls.update(); },     // f<0.5 拉近
+    togglePanels: () => document.querySelectorAll('.panel-head').forEach(h => h.click()),
+    markAt: (x, y) => {                                                       // 在屏幕坐标处放置标点
+      document.getElementById('marktool').checked = true;
+      document.getElementById('marktool').dispatchEvent(new Event('change'));
+      renderer.domElement.dispatchEvent(new PointerEvent('pointerdown', { clientX: x, clientY: y, button: 0, bubbles: true }));
+      renderer.domElement.dispatchEvent(new PointerEvent('pointerup', { clientX: x, clientY: y, button: 0, bubbles: true }));
+    },
+    fill: on => {
+      const el = document.getElementById('filldeps');
+      el.checked = on;
+      el.dispatchEvent(new Event('change'));
+    }
+  };
+
+  // ---------- 渲染循环 ----------
+  addEventListener('resize', () => {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  });
+  (function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    if (flowCurve && flowMesh) {                     // 水滴沿水流路径循环下行
+      const t = (performance.now() * 0.00006) % 1;
+      droplet.position.copy(flowCurve.getPointAt(t));
+      droplet.visible = true;
+      const pulse = 1 + 0.15 * Math.sin(performance.now() * 0.008);   // 呼吸脉动
+      droplet.scale.setScalar(pulse);
+    } else {
+      droplet.visible = false;
+    }
+    renderer.render(scene, camera);
+  })();
+
+  document.getElementById('loading').classList.add('done');
+
+  function showErr(msg) {
+    const el = document.getElementById('err');
+    el.style.display = 'block';
+    el.innerHTML = '<b>加载失败</b><br>' + msg;
+    const ld = document.getElementById('loading');
+    if (ld) ld.style.display = 'none';
+  }
+})();
+</script>
+</body>
+</html>
