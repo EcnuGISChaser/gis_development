@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.1">
+<Document>
+  <Placemark>
+    <name>一教</name>
+    <description>这是华东师大第一教学楼</description>       
+    <Point>
+      <coordinates>121.45,31.03,0</coordinates>
+    </Point>
+  </Placemark>
+
+  <Placemark>
+    <name>道路</name>
+    <description>这是道路</description>		      
+    <LineString>
+         <coordinates>121.46,31.03,0 121.46,31.03,0 121.54,31.02,0  121.66,31.07,0 121.70,31.13,0 121.71,31.18,0       
+         </coordinates>
+     </LineString>
+  </Placemark>
+</Document>
+</kml>
